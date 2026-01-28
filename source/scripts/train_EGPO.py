@@ -228,6 +228,8 @@ def train_diffusion_egpo(config, model, opt, train_data, device='cuda:0',
         torch.save(model.state_dict(), os.path.join(config.fine_tune.save_path, t, 'egpo_finetune_model.pt'))
         if i % 1000 == 999:
             torch.save(model.state_dict(), os.path.join(config.fine_tune.save_path, t, f'egpo_finetune_model_step{i+1}.pt'))
+        if i % config.fine_tune.upload_ref == 0:
+            model.ref_model = copy.deepcopy(model.model)
     return model
 
 

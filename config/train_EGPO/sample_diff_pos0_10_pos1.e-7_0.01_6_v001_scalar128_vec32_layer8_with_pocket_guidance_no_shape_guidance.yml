@@ -86,3 +86,4 @@ fine_tune:  # new
   use_sa_in_reward: False  # w/o sa set False
   qed_weight: 5.0
   sa_weight: 5.0
+  upload_ref: 2000
