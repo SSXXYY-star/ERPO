@@ -1,0 +1,88 @@
+data:
+  split: ./data/crossdocked/crossdocked_dataset_split.pt
+  name: shapemol
+  dataset: crossdocked
+  version: dgcnn_signeddist_512_test
+  train_beg: 0  # new
+  train_end: 10000  # new
+  datasize: 20
+  chunk_size: 1000
+  num_workers: 5
+  processed_path: ./data/crossdocked/test/
+  path: ./data/crossdocked/crossdocked_pocket10
+  transform:
+    ligand_atom_mode: add_aromatic
+    random_rot: False
+  shape:
+    use_shape: True
+    shape_type: pointAE_shape
+    point_cloud_samples: 512
+    shape_parallel: False
+    num_workers: 1
+    batch_size: 8
+    checkpoint: ./models/se.pt
+
+model:
+  checkpoint: ./models/diffusion.pt
+
+sample:
+  seed: 2023
+  num_samples: 10
+  num_steps: 1000
+  pos_only: False
+  use_grad: False
+  use_mesh: False
+  use_mesh_gap: 0.3
+  use_pointcloud: True
+  use_pointcloud_radius: 0.2
+  use_pocket: True
+  use_pocket_radius: 3
+  pocket_grad_step: 0  # wo PG set 1000 to skip pocket grad else 0
+  use_shape: True
+  grad_step: 1001
+  center_pos_mode: none
+  sample_num_atoms: size
+  init_scale: False
+  guide_stren: 0.0
+  pocket_threshold: 0.1
+
+fine_tune:  # new
+  sample_original: True  # w/o EG set False
+  sample_rate: 0.2
+  num_within_group: 4
+  path: ./data/crossdocked/crossdocked_pocket10
+  
+  # for optimization
+  lr: 1.0e-6
+  weight_decay: 1.0e-12
+  amsgrad: True
+  update_old_model_step: 1
+
+  # for reconstruction
+  pos_offset: False
+  pos_reset: True
+  atom_enc_mode: add_aromatic
+  basic_mode: True
+  min_stretch_for_del_bond: 0.0  # 默认0.9
+  covalent_factor: 1.3  # 默认1.3
+  # mol_save_path: ./results/ppo_samples/
+  
+  # for loss calculation
+  epsilon_up: 0.28  # 一般取0.1到0.3之间
+  epsilon_down: 0.2
+  kl_beta: 0.01  # 开始取的是0.1
+  eg_alpha: 1
+
+  # for save model
+  save_path: ./models/egpo_finetune_beta_001/
+
+  # for load model if quit and continue
+  load_history: False
+  load_path: models/egpo_finetune/20260104-100301/egpo_finetune_model.pt
+  load_data: 0
+
+  # for reward
+  use_qed_in_reward: False  # w/o qed set False
+  use_sa_in_reward: False  # w/o sa set False
+  qed_weight: 5.0
+  sa_weight: 5.0
